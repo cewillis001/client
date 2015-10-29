@@ -5,6 +5,7 @@ import (
     "net"
     "time"
     "strconv"
+		//"packet"
 )
  
 func CheckError(err error) {
@@ -13,34 +14,43 @@ func CheckError(err error) {
     }
 }
 
-func SendWRQ(filename string) []byte{
-	packet := []byte{0,2}
-	packet = append(packet, []byte(filename)...)
-	packet = append(packet, []byte{0}...)
-	packet = append(packet, []byte("octet0")...)
-	return packet
+/*
+func SendWRQ(filename string, file string){
+	//may at least return error
+	//pass Conn into function
+	_,err := Conn.Write(MakeWRQ(filename))
+	buf := make([]byte, 1024)
+	n, addr,err := Conn.ReadFromUDP(buf)
 }
+*/
+
+func SendTest(i int, Conn *net.UDPConn){
+	msg := strconv.Itoa(i)
+	buf := []byte(msg)
+	_,err := Conn.Write(buf)
+	if err != nil{
+		fmt.Println(msg, err)
+	}
+} 
  
 func main() {
-    ServerAddr,err := net.ResolveUDPAddr("udp","127.0.0.1:10001")
-    CheckError(err)
+	//shortWriteTest := "Hello world"
+	//shortWriteTestName := "hw"
+
+	ServerAddr,err := net.ResolveUDPAddr("udp","127.0.0.1:10001")
+	CheckError(err)
  
-    LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
-    CheckError(err)
+	LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
+	CheckError(err)
  
-    Conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
-    CheckError(err)
+	Conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
+	CheckError(err)
  
-    defer Conn.Close()
-    i := 0
-    for {
-        msg := strconv.Itoa(i)
-        i++
-        buf := []byte(msg)
-        _,err := Conn.Write(buf)
-        if err != nil {
-            fmt.Println(msg, err)
-        }
-        time.Sleep(time.Second * 1)
-    }
+	defer Conn.Close()
+	i := 0
+	for {
+		SendTest(i, Conn)
+		i++
+		time.Sleep(time.Second * 1)
+	}	
 }
